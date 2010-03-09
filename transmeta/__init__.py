@@ -18,8 +18,8 @@ def get_languages():
 
 def get_real_fieldname(field, lang=None):
     if lang is None:
-       lang = get_language().split('-')[0] # both 'en-US' and 'en' -> 'en'
-    return str('%s_%s' % (field, lang))
+       lang = get_language()
+    return str('%s_%s' % (field, lang.replace('-', '_')))
 
 
 def get_field_language(real_field):
@@ -89,13 +89,14 @@ def default_value_setter(field):
     def default_value_func_setter(self, value):
         attname = lambda x: get_real_fieldname(field, x)
 
-        if getattr(self, attname(get_language()), None):
-            setattr(self, attname(get_language()), value )
-        elif getattr(self, attname(get_language()[:2]), None):
+        if hasattr(self, attname(get_language())):
+            setattr(self, attname(get_language()), value)
+        elif hasattr(self, attname(get_language()[:2])):
             setattr(self, attname(get_language()[:2]), value)
         else:
             default_language = fallback_language()
-            setattr(self, attname(default_language), value)
+            if hasattr(self, attname(default_transmeta)):
+                setattr(self, attname(default_language), value)
 
     return default_value_func_setter
 
